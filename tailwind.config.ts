@@ -49,7 +49,19 @@ export default {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+  			protein: {
+  				light: 'rgb(239 68 68)',   // red-500
+  				dark: 'rgb(69 10 10)'     // red-950
+  			},
+        carbs: {
+          light: 'rgb(234 179 8)',   // yellow-500
+          dark: 'rgb(66 50 3)'      // yellow-950
+        },
+        fat: {
+          light: 'rgb(254 179 10)',  // orange-500
+          dark: 'rgb(67 20 7)'     // orange-950
+        }
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

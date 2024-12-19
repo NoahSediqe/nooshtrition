@@ -20,8 +20,8 @@ export function MacroProgressCard() {
             <span className="text-sm font-medium">Protein</span>
             <span className="text-sm font-medium">60g / 100g</span>
           </div>
-          <Progress value={60} className="bg-blue-200 dark:bg-blue-950">
-            <div className="bg-blue-500" style={{ width: '60%' }} />
+          <Progress value={60} className="bg-protein-light dark:bg-protein-dark">
+            <div className="bg-protein-fill" style={{ width: '60%' }} />
           </Progress>
         </div>
         <div>
@@ -29,8 +29,8 @@ export function MacroProgressCard() {
             <span className="text-sm font-medium">Carbs</span>
             <span className="text-sm font-medium">150g / 250g</span>
           </div>
-          <Progress value={60} className="bg-green-200 dark:bg-green-950">
-            <div className="bg-green-500" style={{ width: '60%' }} />
+          <Progress value={60} className="bg-carbs-light dark:bg-carbs-dark">
+            <div className="bg-carbs-fill" style={{ width: '60%' }} />
           </Progress>
         </div>
         <div>
@@ -38,8 +38,8 @@ export function MacroProgressCard() {
             <span className="text-sm font-medium">Fat</span>
             <span className="text-sm font-medium">40g / 65g</span>
           </div>
-          <Progress value={62} className="bg-yellow-200 dark:bg-yellow-950">
-            <div className="bg-yellow-500" style={{ width: '62%' }} />
+          <Progress value={62} className="bg-fat-light dark:bg-fat-dark">
+            <div className="bg-fat-fill" style={{ width: '62%' }} />
           </Progress>
         </div>
       </CardContent>
