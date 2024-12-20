@@ -1,8 +1,9 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface FoodCardProps {
   name: string;
+  serving: string;
   calories: number;
   protein: number;
   carbs: number;
@@ -10,7 +11,7 @@ interface FoodCardProps {
   onClick?: () => void;
 }
 
-export function FoodCard({ name, calories, protein, carbs, fat, onClick }: FoodCardProps) {
+export function FoodCard({ name, serving, calories, protein, carbs, fat, onClick }: FoodCardProps) {
   // Calculate total macros for percentage
   const totalMacros = protein + carbs + fat;
   
@@ -32,6 +33,9 @@ export function FoodCard({ name, calories, protein, carbs, fat, onClick }: FoodC
         <CardTitle className="text-lg font-bold truncate" title={name}>
           {name}
         </CardTitle>
+        <CardDescription>
+          {serving}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="text-3xl font-bold text-center mb-4">

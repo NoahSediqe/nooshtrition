@@ -1,14 +1,49 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus } from 'lucide-react'
-
-const meals = [
-  { name: 'Breakfast', calories: 400, protein: 20, carbs: 50, fat: 15 },
-  { name: 'Lunch', calories: 600, protein: 30, carbs: 70, fat: 20 },
-  { name: 'Dinner', calories: 500, protein: 25, carbs: 60, fat: 18 },
-]
+import { getUserMeals, type Meal } from "@/lib/db/meals"
+import { useUser } from "@supabase/auth-helpers-react"
 
 export function MealLogCard() {
+  const [meals, setMeals] = useState<Meal[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const user = useUser()
+
+  useEffect(() => {
+    async function fetchMeals() {
+      if (!user?.id) return
+      
+      try {
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date().toISOString().split('T')[0]
+        const userMeals = await getUserMeals(user.id, today)
+        setMeals(userMeals)
+      } catch (error) {
+        console.error('Error fetching meals:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchMeals()
+  }, [user?.id])
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Meal Log</CardTitle>
+        </CardHeader>
+        <CardContent>
+          Loading meals...
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -19,17 +54,23 @@ export function MealLogCard() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {meals.map((meal, index) => (
-            <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-lg">
-              <div>
-                <h4 className="font-semibold">{meal.name}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {meal.calories} cal | P: {meal.protein}g | C: {meal.carbs}g | F: {meal.fat}g
-                </p>
-              </div>
-              <Button variant="ghost" size="sm">Edit</Button>
+          {meals.length === 0 ? (
+            <div className="text-center text-muted-foreground">
+              No meals logged today
             </div>
-          ))}
+          ) : (
+            meals.map((meal) => (
+              <div key={meal.id} className="flex items-center justify-between p-2 bg-muted rounded-lg">
+                <div>
+                  <h4 className="font-semibold">{meal.name}</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {meal.total_calories} cal | P: {meal.total_protein}g | C: {meal.total_carbs}g | F: {meal.total_fat}g
+                  </p>
+                </div>
+                <Button variant="ghost" size="sm">Edit</Button>
+              </div>
+            ))
+          )}
         </div>
       </CardContent>
     </Card>

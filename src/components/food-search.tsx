@@ -4,32 +4,47 @@ import { useState } from "react"
 import { Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { FoodCard } from "@/components/food-card"
-
-const mockFoods = [
-  { name: "Apple", calories: 95, protein: 0.5, carbs: 25, fat: 0.3 },
-  { name: "Chicken Breast", calories: 165, protein: 31, carbs: 0, fat: 3.6 },
-  { name: "Brown Rice", calories: 216, protein: 5, carbs: 45, fat: 1.6 },
-]
+import { searchUSDAFoods, type FoodDetails } from "@/lib/usda-food-api"
+import { useDebounce } from "@/lib/hooks/use-debounce"
+import { useUnitTranslation } from "@/lib/hooks/use-unit-translation"
 
 export function FoodSearch() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [searchResults, setSearchResults] = useState(mockFoods)
+  const [searchResults, setSearchResults] = useState<FoodDetails[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  
+  const { convertWeight, getGramsFromServing, formatMeasurement } = useUnitTranslation('metric')
+
+  const debouncedSearch = useDebounce(async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([])
+      return
+    }
+    
+    setIsLoading(true)
+    try {
+      const results = await searchUSDAFoods(query)
+      setSearchResults(results.slice(0, 6)) // Show top 6 results
+    } catch (error) {
+      console.error('Error searching foods:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, 300)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    // In a real app, you would fetch results from an API here
-    setSearchResults(mockFoods.filter(food => 
-      food.name.toLowerCase().includes(searchTerm.toLowerCase())
-    ))
+    debouncedSearch(searchTerm)
+  }
+
+  const processServing = (amount: number, unit: string) => {
+    const grams = getGramsFromServing(amount, unit)
+    return {
+      original: formatMeasurement(amount, unit),
+      grams: formatMeasurement(grams, 'g')
+    }
   }
 
   return (
@@ -44,19 +59,37 @@ export function FoodSearch() {
             type="search"
             placeholder="Search foods..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              debouncedSearch(e.target.value)
+            }}
           />
-          <Button type="submit">
+          <Button type="submit" disabled={isLoading}>
             <Search className="mr-2 h-4 w-4" />
             Search
           </Button>
         </form>
       </CardContent>
       <CardFooter>
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {searchResults.map((food, index) => (
-            <FoodCard key={index} {...food} />
-          ))}
+        <div className="w-full overflow-x-auto">
+          <div className="flex gap-4 pb-4">
+            {isLoading ? (
+              <div>Loading...</div>
+            ) : searchResults.map((food) => (
+              <FoodCard 
+                key={food.id}
+                name={food.name}
+                serving={food.serving ? `${food.serving.amount} ${food.serving.unit}` : '100g'}
+                calories={food.nutrition.calories}
+                protein={food.nutrition.protein}
+                carbs={food.nutrition.carbs}
+                fat={food.nutrition.fat}
+                onClick={() => {
+                  // Handle food selection
+                }}
+              />
+            ))}
+          </div>
         </div>
       </CardFooter>
     </Card>
